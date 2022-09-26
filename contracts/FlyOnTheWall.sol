@@ -20,7 +20,7 @@ contract FlyOnTheWall {
         string[] rules;
         uint8 highestScore;
         Status status;
-    }   
+    }
 
    struct PostUserScore {
         uint256 postID;
@@ -77,13 +77,13 @@ contract FlyOnTheWall {
         post.status = Status.OPEN;
         
         post_list.push(post);
-        postID++;
-
         emit PostCreated(
           postID,
+          _title,
           msg.sender,
           block.timestamp  
         );
+        postID++;
         return post.postID;
     }
 
@@ -133,6 +133,7 @@ contract FlyOnTheWall {
         return true;
     }
 
+
     // 3. admin can score applications
     // assumes each score is a one to one mapping to the rules, in the same array order
     function scoreApplicationForPost(uint256 _postID, address _applicant, uint8[] memory _scores) public onlyAdmin(_postID) validateScores(_scores) validPost(_postID) {
@@ -140,6 +141,8 @@ contract FlyOnTheWall {
         if (_scores.length != post.rules.length) revert ApplicationScoresShouldMatchRules();
 
         // TODO: validate that _applicant has an application
+
+        // saving scores here for auditing purposes
         PostUserScore storage ps = post_scores_list[_postID];
         ps.scores[_applicant] = _scores;
 
@@ -149,12 +152,21 @@ contract FlyOnTheWall {
         }
 
         if (totalScore > post.highestScore) {
-            address[] memory new_winner;
+            address[] memory new_winner = new address[](1);
             new_winner[0] = _applicant;
+            
             post.winners = new_winner;
             post.highestScore = totalScore;
         } else if (totalScore == post.highestScore) {
-            post.winners.push(_applicant);
+            // TODO: avoid having the same addresses as a tie (in case of updating scores)
+
+            uint currentWinnersTotal = post.winners.length;
+            address[] memory tie_winners = new address[](currentWinnersTotal + 1);
+            for (uint i = 0; i < currentWinnersTotal; i++) {
+                tie_winners[i] = post.winners[i];
+            }
+            tie_winners[currentWinnersTotal] = _applicant;
+            post.winners = tie_winners; 
         }
 
         emit ApplicationScored(
@@ -184,6 +196,7 @@ contract FlyOnTheWall {
 
     event PostCreated(
         uint256 postID,
+        string title,
         address admin,
         uint256 timestamp
     );
