@@ -15,7 +15,7 @@ npx hardhat run scripts/deploy.js
 ## Testing Values
 ```
 1. create post:
-choose_job, https://bit.ly/3LQwhWY, [remote, salary, culture]  
+choose_job, https://bit.ly/3LQwhWY, [remote, salary, culture], [1, 2, 3]
 
 
 2. apply to post:
