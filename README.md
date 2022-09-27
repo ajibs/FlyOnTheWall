@@ -27,4 +27,4 @@ choose_job, https://bit.ly/3LQwhWY, [remote, salary, culture], [1, 2, 3]
 ```
 
 ## Contract Address:
-https://goerli.etherscan.io/verifyContract-solc?a=0x151e45c6905a393c28d807b1682f4889a1c7a3e1&c=v0.8.7%2bcommit.e28d00a7&lictype=3
+https://goerli.etherscan.io/address/0x151e45c6905a393c28d807b1682f4889a1c7a3e1
