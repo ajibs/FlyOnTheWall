@@ -22,9 +22,10 @@ contract FlyOnTheWall {
         Status status;
     }
 
-   struct PostUserScore {
+   struct PostUserInfo {
         uint256 postID;
         mapping(address => uint8[]) scores;
+        mapping(address => bool) applied;
    }
 
     struct Application {
@@ -33,7 +34,7 @@ contract FlyOnTheWall {
     }
 
     mapping(uint256 => Post) public posts;
-    mapping(uint256 => PostUserScore) public post_scores_list;
+    mapping(uint256 => PostUserInfo) public post_user_info_list;
     Post[] post_list;
     
     error TooManyRules();
@@ -43,6 +44,7 @@ contract FlyOnTheWall {
     error InvalidPost();
     error PostClosed();
     error ApplicationScoresShouldMatchRules();
+    error ApplicantDoesNotExistForThisPost();
 
     modifier validRules(string[] memory _rules) {
         if (_rules.length > 10) revert TooManyRules();
@@ -123,7 +125,13 @@ contract FlyOnTheWall {
         Application memory application;
         application.applicant = msg.sender;
         application.url = _url;
+        
+        // kept here to enable easily listing to user;
         post.applications.push(application);
+
+        PostUserInfo storage ps = post_user_info_list[_postID];
+        // kept here to enable easy access the application of a specific user
+        ps.applied[msg.sender] = true;
 
         emit PostApplication(
             _postID,
@@ -139,11 +147,10 @@ contract FlyOnTheWall {
     function scoreApplicationForPost(uint256 _postID, address _applicant, uint8[] memory _scores) public onlyAdmin(_postID) validateScores(_scores) validPost(_postID) {
         Post storage post = posts[_postID];
         if (_scores.length != post.rules.length) revert ApplicationScoresShouldMatchRules();
-
-        // TODO: validate that _applicant has an application
-
+        
+        PostUserInfo storage ps = post_user_info_list[_postID];
+        if (ps.applied[_applicant] == false) revert ApplicantDoesNotExistForThisPost();
         // saving scores here for auditing purposes
-        PostUserScore storage ps = post_scores_list[_postID];
         ps.scores[_applicant] = _scores;
 
         uint8 totalScore;
