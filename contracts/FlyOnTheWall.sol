@@ -128,9 +128,9 @@ contract FlyOnTheWall {
         // kept here to enable easily listing to user;
         post.applications.push(application);
 
-        PostUserInfo storage ps = post_user_info_list[_postID];
+        PostUserInfo storage pui = post_user_info_list[_postID];
         // kept here to enable easy access the application of a specific user
-        ps.applied[msg.sender] = true;
+        pui.applied[msg.sender] = true;
 
         emit PostApplication(
             _postID,
@@ -147,11 +147,11 @@ contract FlyOnTheWall {
         Post storage post = posts[_postID];
         if (_scores.length != post.rules.length) revert ApplicationScoresShouldMatchRules();
         
-        PostUserInfo storage ps = post_user_info_list[_postID];
-        if (ps.applied[_applicant] == false) revert ApplicantDoesNotExistForThisPost();
+        PostUserInfo storage pui = post_user_info_list[_postID];
+        if (pui.applied[_applicant] == false) revert ApplicantDoesNotExistForThisPost();
         // saving scores here for auditing purposes
-        ps.scores[_applicant] = _scores;
-
+        pui.scores[_applicant] = _scores;
+                                                                        
         uint8 totalScore;
         for (uint8 i = 0; i < _scores.length; i++) {
             totalScore += _scores[i] * post.rules_weight[i];
