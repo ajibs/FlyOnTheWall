@@ -10,6 +10,8 @@ contract FlyOnTheWall {
     uint8 private constant status_length = 2;
     uint256 internal postID;
 
+    uint8 private constant max_number_rules = 10;
+
     struct Post {
         uint256 postID;
         string title;
@@ -18,6 +20,7 @@ contract FlyOnTheWall {
         Application[] applications;
         address[] winners;
         string[] rules;
+        uint8[] rules_weight;
         uint8 highestScore;
         Status status;
     }
@@ -47,12 +50,7 @@ contract FlyOnTheWall {
     error ApplicantDoesNotExistForThisPost();
 
     modifier validRules(string[] memory _rules) {
-        if (_rules.length > 10) revert TooManyRules();
-        _;
-    }
-
-    modifier validateScores(uint8[] memory _scores) {
-        if (_scores.length > 10) revert TooManyRules();
+        if (_rules.length > max_number_rules) revert TooManyRules();
         _;
     }
 
@@ -70,12 +68,13 @@ contract FlyOnTheWall {
 
     // 1. anyone can create a post
         // post admin, title, rules, url, status
-    function createPost(string memory _title, string memory _url, string[] memory _rules) public validRules(_rules) returns (uint256) {
+    function createPost(string memory _title, string memory _url, string[] memory _rules, uint8[] memory _rules_weight) public validRules(_rules) returns (uint256) {
         Post storage post = posts[postID];
         post.admin = msg.sender;
         post.title = _title;
         post.url = _url;
         post.rules = _rules;
+        post.rules_weight = _rules_weight;
         post.status = Status.OPEN;
         
         post_list.push(post);
@@ -144,7 +143,7 @@ contract FlyOnTheWall {
 
     // 3. admin can score applications
     // assumes each score is a one to one mapping to the rules, in the same array order
-    function scoreApplicationForPost(uint256 _postID, address _applicant, uint8[] memory _scores) public onlyAdmin(_postID) validateScores(_scores) validPost(_postID) {
+    function scoreApplicationForPost(uint256 _postID, address _applicant, uint8[] memory _scores) public onlyAdmin(_postID) validPost(_postID) {
         Post storage post = posts[_postID];
         if (_scores.length != post.rules.length) revert ApplicationScoresShouldMatchRules();
         
@@ -155,7 +154,7 @@ contract FlyOnTheWall {
 
         uint8 totalScore;
         for (uint8 i = 0; i < _scores.length; i++) {
-            totalScore += _scores[i];
+            totalScore += _scores[i] * post.rules_weight[i];
         }
 
         if (totalScore > post.highestScore) {
