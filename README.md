@@ -28,3 +28,7 @@ choose_job, https://bit.ly/3LQwhWY, [remote, salary, culture], [1, 2, 3]
 
 ## Contract Address:
 https://goerli.etherscan.io/address/0x151e45c6905a393c28d807b1682f4889a1c7a3e1
+
+## TODO
+* Optimize the smart contract
+* Build a web frontend for easier use of the smart contract
