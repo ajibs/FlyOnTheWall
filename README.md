@@ -1,16 +1,18 @@
-# Sample Hardhat Project
+# FlyOnTheWall
+A tool for open-sourcing decision making.
 
-This project demonstrates a basic Hardhat use case. It comes with a sample contract, a test for that contract, and a script that deploys that contract.
+We can now use the basic flow on the smart contract:
 
-Try running some of the following tasks:
+* anyone can create posts
+* anyone apply for posts
+* post owner can score applications
+* anyone can get winners
 
-```shell
-npx hardhat help
-npx hardhat test
-REPORT_GAS=true npx hardhat test
-npx hardhat node
-npx hardhat run scripts/deploy.js
-```
+Also implemented:
+* listing applications for post
+* listing all existing posts
+* owner of post can change state to closed or open
+
 
 ## Testing Values
 ```
